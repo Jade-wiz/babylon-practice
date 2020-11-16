@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Engine, Scene, Skybox } from "react-babylonjs";
+import { Scene, Skybox } from "react-babylonjs";
 import {
   Vector3,
   Color3,
@@ -88,9 +88,11 @@ function Game() {
               m.isPickable = false;
             });
             ufo = body;
+            // ufo.position = new Vector3(0, -2, 0);
             ufo.position = new Vector3(
               randomBetween(-3, 3),
-              randomBetween(-5, 2),
+              -2,
+              // randomBetween(-5, 2),
               UFO_DISTANCE
             );
             ufo.scaling = new Vector3(3, 3, 3);
@@ -132,29 +134,6 @@ function Game() {
               // });
             }
           });
-        }
-        break;
-      case STATE.FAIL:
-        {
-          let advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI(
-            "FailUI"
-          );
-          let tryAgainButton = Button.CreateImageWithCenterTextButton(
-            "tryAgainButton",
-            "Try Again"
-          );
-          tryAgainButton.zIndex = "10";
-          tryAgainButton.width = 0.2;
-          tryAgainButton.height = "40px";
-          tryAgainButton.color = "red";
-          tryAgainButton.background = "black";
-          tryAgainButton.isPickable = true;
-          tryAgainButton.onPointerDownObservable.add(() => {
-            tryAgain();
-          });
-          tryAgainButton.zIndex = "10";
-          VirtualJoystick.Canvas.style.zIndex = "-1";
-          advancedTexture.addControl(tryAgainButton);
         }
         break;
       default:
@@ -216,8 +195,12 @@ function Game() {
     tryAgainButton.height = "40px";
     tryAgainButton.color = "red";
     tryAgainButton.background = "black";
-    tryAgainButton.onPointerDownObservable.add(() => {
+    tryAgainButton.isPointerBlocker = true;
+    tryAgainButton.onPointerClickObservable.add(() => {
       tryAgain();
+    });
+    tryAgainButton.onPointerEnterObservable.add(() => {
+      console.log("POINTER ENTER");
     });
     tryAgainButton.zIndex = "10";
     VirtualJoystick.Canvas.style.zIndex = "-1";
@@ -230,32 +213,28 @@ function Game() {
 
   return (
     <div className="Container">
-      <Engine
+      {/* <Engine
         antialias={true}
         adaptToDeviceRatio={true}
         canvasId="sample-canvas"
-      >
-        <Scene
-          onSceneMount={onSceneMount}
-          collisionsEnabled={true}
-          state={state}
-        >
-          <hemisphericLight
-            name="hemi-light"
-            intensity={0.9}
-            direction={Vector3.Up()}
-          />
-          <Skybox rootUrl={SkyboxScenes[0].texture} />
-          <freeCamera
-            ref={camera}
-            name="camera1"
-            position={new Vector3(0, 5, -10)}
-            setTarget={[Vector3.Zero()]}
-            checkCollisions={true}
-            ellipsoid={new Vector3(100, 100, 1)}
-          />
-        </Scene>
-      </Engine>
+      > */}
+      <Scene onSceneMount={onSceneMount} collisionsEnabled={true} state={state}>
+        <hemisphericLight
+          name="hemi-light"
+          intensity={0.9}
+          direction={Vector3.Up()}
+        />
+        <Skybox rootUrl={SkyboxScenes[0].texture} />
+        <freeCamera
+          ref={camera}
+          name="camera1"
+          position={new Vector3(0, 5, -10)}
+          setTarget={[Vector3.Zero()]}
+          checkCollisions={true}
+          ellipsoid={new Vector3(100, 100, 1)}
+        />
+      </Scene>
+      {/* </Engine> */}
     </div>
   );
 }
