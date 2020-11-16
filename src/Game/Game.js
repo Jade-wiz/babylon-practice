@@ -45,7 +45,6 @@ function Game() {
 
   let sphere;
   let ufo;
-  let ufos = [];
   let leftJoystick;
   let rightJoystick;
 
@@ -94,6 +93,7 @@ function Game() {
               randomBetween(-5, 2),
               UFO_DISTANCE
             );
+            ufo.scaling = new Vector3(3, 3, 3);
             // for (let i = 0; i < UFO_COUNT; i++) {
             //   // let newUfo = root.createInstance("ufo" + i);
             //   let newUfo = root.clone("ufo" + i);
