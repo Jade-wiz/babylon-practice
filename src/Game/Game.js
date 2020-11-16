@@ -15,7 +15,7 @@ function Game() {
     globalIndex = 0
 
     return (
-        <div style={{width : '100vw'}}>
+        <div className="Container">
             <Engine antialias={true} adaptToDeviceRatio={true} canvasId="sample-canvas">
             <Scene>
               <hemisphericLight name="hemi-light" intensity={0.7} direction={Vector3.Up()} />
