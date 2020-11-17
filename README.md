@@ -1,70 +1,54 @@
-# Getting Started with Create React App
+# A Simple 3D Game made with Babylon.js
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+조이스틱으로 조작해 날아오는 UFO를 피하는 게임.
 
-## Available Scripts
+- 화면 왼쪽: X축, Y축 이동
+- 화면 오른쪽: Z축 이동
 
-In the project directory, you can run:
+## Aim
 
-### `yarn start`
+Babylon.js API와 매커니즘에 익숙해지기 위함.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## How To Run
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+`yarn install`  
+`yarn start`
 
-### `yarn test`
+## Structure
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- create-react-app + react-babylonjs
+- Game 컴포넌트에 Babylon Engine과 Scene 구현
+- 단일 Scene 사용, buildGame()과 gameOver() 함수를 사용해 장면 구성 및 모드 전환
+- 에셋(UFO Mesh와 Skybox material 파일)은 public/scenes, public/textures에
 
-### `yarn build`
+## What I Learned
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Babylon.js 개발 시 유의사항
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+  - 씬/오브젝트는 불필요해지면 `dispose`로 삭제
+  - render loop는 최대한 가볍게
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- 여러 개의 동일한 Mesh를 사용하는 방법
 
-### `yarn eject`
+  - Clone
+  - Instance : Material 공유, GPU Feature, Very Fast Render, Scene Graph에는 존재
+  - Thin Instance : Scene Graph에 존재하지 않음. 충돌, Pick 불가능.
+  - 속도 : Clone < Instance < Thin Instance
+  - Instance 사용하려면 Mesh에 Geometry가 포함되어야 함.
+  - import한 glb 모델을 복제하면 애니메이션 등 누락 요소가 생김 -> 각각 새로 임포트, 캐시를 사용하면 좋음.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- 두 Mesh가 닿는 경우의 처리
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  - Intersect : 교차 상태; 특정 Mesh에게 어떤 Mesh와 닿았는지 여부를 확인 가능.
+  - Collision : 충돌; 단순한 형태의 Collider Mesh를 추가로 생성, isVible = false, checkCollision = true 처리.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- React와 Babylon.js
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+  - Component 형태로 코드 없이 선언적으로 구현할 수 있지만 Engine, Scene reference를 인식하지 못하는 등 불편한 요소 있음.
+  - canvas만 있으면 React에서도 Engine과 Scene부터 모두 코드로 구현 가능.
+  - Scene Component 사용 시 onSceneMount props를 사용하여 scene 구성 코드를 지정.
+  - state에 따른 씬 전환 구현해보려 했으나 React의 render 시점에 scene이 다시 mount 되지 않는 등 쉽지 않음.
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Others
+  - Skybox Material은 X, Y, Z 방향의 +, - 방향에 대한 각각의 총 6장의 분리된 이미지로 구성.
+  - Canvas size는 Babylon.js과 무관하게 CSS로 조절 가능.
