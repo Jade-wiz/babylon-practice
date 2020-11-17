@@ -48,6 +48,7 @@ Babylon.js API와 매커니즘에 익숙해지기 위함.
   - canvas만 있으면 React에서도 Engine과 Scene부터 모두 코드로 구현 가능.
   - Scene Component 사용 시 onSceneMount props를 사용하여 scene 구성 코드를 지정.
   - state에 따른 씬 전환 구현해보려 했으나 React의 render 시점에 scene이 다시 mount 되지 않는 등 쉽지 않음.
+  - [Reusable Babylon Component Reference](https://doc.babylonjs.com/extensions/Babylon.js+ExternalLibraries/BabylonJS_and_ReactJS)
 
 - Others
   - Camera와의 충돌이 필요한 경우 FreeCamera 사용.
