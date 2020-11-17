@@ -22,13 +22,14 @@ function Game() {
   const MOVE_SPEED = 5;
   const UFO_COUNT = 3;
   const UFO_DISTANCE = 20;
-  const UFO_SPEED = 0.2;
+  const UFO_SPEED = 0.15;
   const OUT_OF_SCENE = -10;
 
   // const [state, setState] = useState(STATE.GAME);
 
   let sphere;
-  let ufo;
+  let ufos = [];
+  let ufoTimeouts = [];
   let leftJoystick;
   let rightJoystick;
   let tryAgainButton;
@@ -57,34 +58,46 @@ function Game() {
 
     buildGame();
 
-    scene.registerBeforeRender(function() {
-      if (ufo) {
-        // ufos.forEach(ufo => {
-        ufo.position.z -= UFO_SPEED;
-
-        // UFO OUT OF SCENE
-        if (ufo.position.z < OUT_OF_SCENE) {
-          ufo.position = new Vector3(
-            randomBetween(-4, 4),
-            randomBetween(-4, 1),
-            UFO_DISTANCE
-          );
-        }
-
-        // UFO-SPHERE INTERSECTION
-        if (ufo.intersectsMesh(sphere, false)) {
-          scene.onBeforeRenderObservable.remove(handleJoystick);
-          gameOver();
-        }
-        // });
-      }
-    });
-
     scene.getEngine().runRenderLoop(() => {
       if (scene) {
         scene.render();
       }
     });
+  }
+
+  function manageUfos() {
+    ufos.forEach(ufo => {
+      ufoMove(ufo);
+      checkIntersection(ufo);
+    });
+  }
+
+  function ufoMove(ufo) {
+    if (ufo.isDisposed()) {
+      return;
+    }
+
+    ufo.position.z -= UFO_SPEED;
+
+    // UFO OUT OF SCENE
+    if (ufo.position.z < OUT_OF_SCENE) {
+      ufo.position = new Vector3(
+        randomBetween(-5, 5),
+        randomBetween(-4, 1),
+        UFO_DISTANCE
+      );
+    }
+  }
+
+  function checkIntersection(ufo) {
+    if (ufo.isDisposed()) {
+      return;
+    }
+
+    // UFO-SPHERE INTERSECTION
+    if (ufo.intersectsMesh(sphere, false)) {
+      gameOver();
+    }
   }
 
   function buildGame() {
@@ -96,7 +109,7 @@ function Game() {
     sphereMat.specularColor = Color3.Black();
     sphere.material = sphereMat;
 
-    // Create joystick and set z index to be below playgrounds top bar
+    // Create joystick
     leftJoystick = new VirtualJoystick(true);
     rightJoystick = new VirtualJoystick(false);
     VirtualJoystick.Canvas.style.zIndex = "4";
@@ -104,6 +117,18 @@ function Game() {
     // Game/Render loop
     scene.onBeforeRenderObservable.add(handleJoystick);
 
+    // Create UFOs
+    for (let i = 0; i < UFO_COUNT; i++) {
+      ufoTimeouts.push(
+        setTimeout(() => {
+          importUfo();
+        }, 10000 * i)
+      );
+    }
+    scene.registerBeforeRender(manageUfos);
+  }
+
+  function importUfo() {
     SceneLoader.ImportMeshAsync(
       "",
       `${process.env.PUBLIC_URL}/scenes/`,
@@ -119,37 +144,35 @@ function Game() {
       body.getChildMeshes().forEach(m => {
         m.isPickable = false;
       });
-      ufo = body;
+
       // ufo.position = new Vector3(0, -2, UFO_DISTANCE);
-      ufo.position = new Vector3(
-        randomBetween(-3, 3),
+      body.position = new Vector3(
+        randomBetween(-5, 5),
         randomBetween(-4, 1),
         UFO_DISTANCE
       );
-      ufo.scaling = new Vector3(3, 3, 3);
-      // for (let i = 0; i < UFO_COUNT; i++) {
-      //   // let newUfo = root.createInstance("ufo" + i);
-      //   let newUfo = root.clone("ufo" + i);
-      //   newUfo.position = new Vector3(
-      //     randomBetween(-3, 3),
-      //     randomBetween(-5, 2),
-      //     UFO_DISTANCE
-      //   );
-      //   ufos.push(newUfo);
-      // }
+      body.scaling = new Vector3(3, 3, 3);
+
+      ufos.push(body);
     });
   }
 
   function gameOver() {
-    if (ufo) {
+    scene.unregisterBeforeRender(manageUfos);
+    ufoTimeouts.forEach(timeout => {
+      clearTimeout(timeout);
+    });
+    ufos.forEach(ufo => {
       ufo.dispose();
-      ufo = null;
-    }
+    });
+    ufos = [];
+
     if (sphere) {
       sphere.dispose();
       sphere = null;
     }
 
+    // Try Again Button
     let advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("FailUI");
     tryAgainButton = Button.CreateSimpleButton("tryAgainButton", "Try Again");
     tryAgainButton.zIndex = "10";
@@ -172,7 +195,7 @@ function Game() {
   }
 
   function handleJoystick() {
-    if (!sphere || !ufo) {
+    if (!sphere) {
       return;
     }
 
