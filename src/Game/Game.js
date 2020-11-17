@@ -22,6 +22,7 @@ function Game() {
   const MOVE_SPEED = 5;
   const UFO_COUNT = 3;
   const UFO_DISTANCE = 20;
+  const UFO_SPEED = 0.2;
   const OUT_OF_SCENE = -10;
 
   const [state, setState] = useState(STATE.GAME);
@@ -98,13 +99,13 @@ function Game() {
           scene.registerBeforeRender(function() {
             if (ufo) {
               // ufos.forEach(ufo => {
-              ufo.position.z -= 0.1;
+              ufo.position.z -= UFO_SPEED;
 
               // UFO OUT OF SCENE
               if (ufo.position.z < OUT_OF_SCENE) {
                 ufo.position = new Vector3(
-                  randomBetween(-3, 3),
-                  randomBetween(-5, 2),
+                  randomBetween(-4, 4),
+                  randomBetween(-4, 1),
                   UFO_DISTANCE
                 );
               }
@@ -175,7 +176,7 @@ function Game() {
     );
     tryAgainButton.zIndex = "10";
     tryAgainButton.width = 0.2;
-    tryAgainButton.height = "40px";
+    tryAgainButton.height = 0.1;
     tryAgainButton.color = "red";
     tryAgainButton.background = "black";
     tryAgainButton.isPointerBlocker = true;
@@ -193,11 +194,7 @@ function Game() {
 
   return (
     <div className="Container">
-      <Engine
-        antialias={true}
-        adaptToDeviceRatio={true}
-        canvasId="sample-canvas"
-      >
+      <Engine antialias={true} adaptToDeviceRatio={true} canvasId="game-canvas">
         <Scene
           onSceneMount={onSceneMount}
           collisionsEnabled={true}
