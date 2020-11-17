@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Scene, Skybox } from "react-babylonjs";
+import { Engine, Scene, Skybox } from "react-babylonjs";
 import {
   Vector3,
   Color3,
@@ -193,27 +193,31 @@ function Game() {
 
   return (
     <div className="Container">
-      {/* <Engine
+      <Engine
         antialias={true}
         adaptToDeviceRatio={true}
         canvasId="sample-canvas"
-      > */}
-      <Scene onSceneMount={onSceneMount} collisionsEnabled={true} state={state}>
-        <hemisphericLight
-          name="hemi-light"
-          intensity={0.9}
-          direction={Vector3.Up()}
-        />
-        <Skybox rootUrl={`${process.env.PUBLIC_URL}/textures/space`} />
-        <freeCamera
-          name="camera1"
-          position={new Vector3(0, 5, -10)}
-          setTarget={[Vector3.Zero()]}
-          checkCollisions={true}
-          ellipsoid={new Vector3(100, 100, 1)}
-        />
-      </Scene>
-      {/* </Engine> */}
+      >
+        <Scene
+          onSceneMount={onSceneMount}
+          collisionsEnabled={true}
+          state={state}
+        >
+          <hemisphericLight
+            name="hemi-light"
+            intensity={0.9}
+            direction={Vector3.Up()}
+          />
+          <Skybox rootUrl={`${process.env.PUBLIC_URL}/textures/space`} />
+          <freeCamera
+            name="camera1"
+            position={new Vector3(0, 5, -10)}
+            setTarget={[Vector3.Zero()]}
+            checkCollisions={true}
+            ellipsoid={new Vector3(100, 100, 1)}
+          />
+        </Scene>
+      </Engine>
     </div>
   );
 }
