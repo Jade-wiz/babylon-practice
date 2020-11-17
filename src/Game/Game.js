@@ -9,8 +9,8 @@ import {
   SceneLoader
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, Button } from "@babylonjs/gui";
-// import { ImportMesh } from "@babylonjs/loaders";
 import { randomBetween } from "../utils.js";
+import "./Game.css";
 
 let globalIndex = 0; // due to closure and how observables are assigned.
 const SkyboxScenes = [
@@ -186,7 +186,7 @@ function Game() {
     setState(STATE.FAIL);
 
     let advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("FailUI");
-    let tryAgainButton = Button.CreateImageWithCenterTextButton(
+    let tryAgainButton = Button.CreateSimpleButton(
       "tryAgainButton",
       "Try Again"
     );
@@ -199,11 +199,8 @@ function Game() {
     tryAgainButton.onPointerClickObservable.add(() => {
       tryAgain();
     });
-    tryAgainButton.onPointerEnterObservable.add(() => {
-      console.log("POINTER ENTER");
-    });
-    tryAgainButton.zIndex = "10";
     VirtualJoystick.Canvas.style.zIndex = "-1";
+    tryAgainButton.zIndex = 10;
     advancedTexture.addControl(tryAgainButton);
   }
 

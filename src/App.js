@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Helmet } from "react-helmet";
+import "./App.css";
 
 import GameContainer from "./Game/GameContainer";
 import Game from "./Game/Game";
@@ -16,6 +18,10 @@ function App() {
 
   return (
     <div className="App">
+      <Helmet>
+        {/* For detecting touch input on mobile */}
+        <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+      </Helmet>
       <Engine
         antialias={true}
         adaptToDeviceRatio={true}
