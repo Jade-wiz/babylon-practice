@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Engine, Scene, Skybox } from "react-babylonjs";
 import {
   Vector3,
@@ -33,6 +33,23 @@ function Game() {
   let rightJoystick;
 
   let scene;
+
+  useEffect(() => {
+    const resize = () => {
+      scene?.getEngine().resize();
+    };
+
+    if (window) {
+      window.addEventListener("resize", resize);
+    }
+
+    return () => {
+      scene?.getEngine().dispose();
+      if (window) {
+        window.removeEventListener("resize", resize);
+      }
+    };
+  });
 
   function onSceneMount(e) {
     scene = e.scene;
