@@ -50,5 +50,6 @@ Babylon.js API와 매커니즘에 익숙해지기 위함.
   - state에 따른 씬 전환 구현해보려 했으나 React의 render 시점에 scene이 다시 mount 되지 않는 등 쉽지 않음.
 
 - Others
+  - Camera와의 충돌이 필요한 경우 FreeCamera 사용.
   - Skybox Material은 X, Y, Z 방향의 +, - 방향에 대한 각각의 총 6장의 분리된 이미지로 구성.
   - Canvas size는 Babylon.js과 무관하게 CSS로 조절 가능.
