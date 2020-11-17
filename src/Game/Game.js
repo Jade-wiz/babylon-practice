@@ -25,12 +25,13 @@ function Game() {
   const UFO_SPEED = 0.2;
   const OUT_OF_SCENE = -10;
 
-  const [state, setState] = useState(STATE.GAME);
+  // const [state, setState] = useState(STATE.GAME);
 
   let sphere;
   let ufo;
   let leftJoystick;
   let rightJoystick;
+  let tryAgainButton;
 
   let scene;
 
@@ -54,124 +55,89 @@ function Game() {
   function onSceneMount(e) {
     scene = e.scene;
 
-    switch (state) {
-      case STATE.GAME:
-        {
-          // Create a sphere that we will be moved
-          sphere = Mesh.CreateSphere("sphere1", 8, 1.5, scene);
-          sphere.position.y = -2;
-          let sphereMat = new StandardMaterial("redMaterial", scene);
-          sphereMat.diffuseColor = Color3.Red();
-          sphereMat.specularColor = Color3.Black();
-          sphere.material = sphereMat;
+    buildGame();
 
-          // Create joystick and set z index to be below playgrounds top bar
-          leftJoystick = new VirtualJoystick(true);
-          rightJoystick = new VirtualJoystick(false);
-          VirtualJoystick.Canvas.style.zIndex = "4";
+    scene.registerBeforeRender(function() {
+      if (ufo) {
+        // ufos.forEach(ufo => {
+        ufo.position.z -= UFO_SPEED;
 
-          // Game/Render loop
-          scene.onBeforeRenderObservable.add(handleJoystick);
-
-          SceneLoader.ImportMeshAsync(
-            "",
-            `${process.env.PUBLIC_URL}/scenes/`,
-            "ufo.glb",
-            scene
-          ).then(result => {
-            const root = result.meshes[0];
-            root.isVisible = false;
-            // //body is our actual player mesh
-            const body = root;
-            // body.parent = outer;
-            body.isPickable = false; //so our raycasts dont hit ourself
-            body.getChildMeshes().forEach(m => {
-              m.isPickable = false;
-            });
-            ufo = body;
-            // ufo.position = new Vector3(0, -2, 0);
-            ufo.position = new Vector3(
-              randomBetween(-3, 3),
-              -2,
-              // randomBetween(-5, 2),
-              UFO_DISTANCE
-            );
-            ufo.scaling = new Vector3(3, 3, 3);
-            // for (let i = 0; i < UFO_COUNT; i++) {
-            //   // let newUfo = root.createInstance("ufo" + i);
-            //   let newUfo = root.clone("ufo" + i);
-            //   newUfo.position = new Vector3(
-            //     randomBetween(-3, 3),
-            //     randomBetween(-5, 2),
-            //     UFO_DISTANCE
-            //   );
-            //   ufos.push(newUfo);
-            // }
-
-            // return {
-            //     mesh: outer as Mesh,
-            // }
-          });
-
-          scene.registerBeforeRender(function() {
-            if (ufo) {
-              // ufos.forEach(ufo => {
-              ufo.position.z -= UFO_SPEED;
-
-              // UFO OUT OF SCENE
-              if (ufo.position.z < OUT_OF_SCENE) {
-                ufo.position = new Vector3(
-                  randomBetween(-4, 4),
-                  randomBetween(-4, 1),
-                  UFO_DISTANCE
-                );
-              }
-
-              // UFO-SPHERE INTERSECTION
-              if (ufo.intersectsMesh(sphere, false)) {
-                scene.onBeforeRenderObservable.remove(handleJoystick);
-                gameOver();
-              }
-              // });
-            }
-          });
+        // UFO OUT OF SCENE
+        if (ufo.position.z < OUT_OF_SCENE) {
+          ufo.position = new Vector3(
+            randomBetween(-4, 4),
+            randomBetween(-4, 1),
+            UFO_DISTANCE
+          );
         }
-        break;
-      default:
-        break;
-    }
+
+        // UFO-SPHERE INTERSECTION
+        if (ufo.intersectsMesh(sphere, false)) {
+          scene.onBeforeRenderObservable.remove(handleJoystick);
+          gameOver();
+        }
+        // });
+      }
+    });
 
     scene.getEngine().runRenderLoop(() => {
       if (scene) {
         scene.render();
       }
     });
+  }
 
-    function handleJoystick() {
-      if (!sphere || !ufo) {
-        return;
-      }
+  function buildGame() {
+    // Create a sphere that we will be moved
+    sphere = Mesh.CreateSphere("sphere1", 8, 1.5, scene);
+    sphere.position = new Vector3(0, -2, 0);
+    let sphereMat = new StandardMaterial("redMaterial", scene);
+    sphereMat.diffuseColor = Color3.Red();
+    sphereMat.specularColor = Color3.Black();
+    sphere.material = sphereMat;
 
-      if (leftJoystick.pressed) {
-        let moveX =
-          leftJoystick.deltaPosition.x *
-          (scene.getEngine().getDeltaTime() / 1000) *
-          MOVE_SPEED;
-        let moveZ =
-          leftJoystick.deltaPosition.y *
-          (scene.getEngine().getDeltaTime() / 1000) *
-          MOVE_SPEED;
-        sphere.position.x += moveX;
-        sphere.position.z += moveZ;
-      }
-      if (rightJoystick.pressed) {
-        let moveY =
-          rightJoystick.deltaPosition.y *
-          (scene.getEngine().getDeltaTime() / 1000) *
-          MOVE_SPEED;
-        sphere.position.y += moveY;
-      }
-    }
+    // Create joystick and set z index to be below playgrounds top bar
+    leftJoystick = new VirtualJoystick(true);
+    rightJoystick = new VirtualJoystick(false);
+    VirtualJoystick.Canvas.style.zIndex = "4";
+
+    // Game/Render loop
+    scene.onBeforeRenderObservable.add(handleJoystick);
+
+    SceneLoader.ImportMeshAsync(
+      "",
+      `${process.env.PUBLIC_URL}/scenes/`,
+      "ufo.glb",
+      scene
+    ).then(result => {
+      const root = result.meshes[0];
+      root.isVisible = false;
+      // //body is our actual player mesh
+      const body = root;
+      // body.parent = outer;
+      body.isPickable = false; //so our raycasts dont hit ourself
+      body.getChildMeshes().forEach(m => {
+        m.isPickable = false;
+      });
+      ufo = body;
+      // ufo.position = new Vector3(0, -2, UFO_DISTANCE);
+      ufo.position = new Vector3(
+        randomBetween(-3, 3),
+        randomBetween(-4, 1),
+        UFO_DISTANCE
+      );
+      ufo.scaling = new Vector3(3, 3, 3);
+      // for (let i = 0; i < UFO_COUNT; i++) {
+      //   // let newUfo = root.createInstance("ufo" + i);
+      //   let newUfo = root.clone("ufo" + i);
+      //   newUfo.position = new Vector3(
+      //     randomBetween(-3, 3),
+      //     randomBetween(-5, 2),
+      //     UFO_DISTANCE
+      //   );
+      //   ufos.push(newUfo);
+      // }
+    });
   }
 
   function gameOver() {
@@ -184,13 +150,8 @@ function Game() {
       sphere = null;
     }
 
-    setState(STATE.FAIL);
-
     let advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("FailUI");
-    let tryAgainButton = Button.CreateSimpleButton(
-      "tryAgainButton",
-      "Try Again"
-    );
+    tryAgainButton = Button.CreateSimpleButton("tryAgainButton", "Try Again");
     tryAgainButton.zIndex = "10";
     tryAgainButton.width = 0.2;
     tryAgainButton.height = 0.1;
@@ -206,17 +167,40 @@ function Game() {
   }
 
   function tryAgain() {
-    console.log("TRY AGAIN");
+    tryAgainButton.dispose();
+    buildGame();
+  }
+
+  function handleJoystick() {
+    if (!sphere || !ufo) {
+      return;
+    }
+
+    if (leftJoystick.pressed) {
+      let moveX =
+        leftJoystick.deltaPosition.x *
+        (scene.getEngine().getDeltaTime() / 1000) *
+        MOVE_SPEED;
+      let moveZ =
+        leftJoystick.deltaPosition.y *
+        (scene.getEngine().getDeltaTime() / 1000) *
+        MOVE_SPEED;
+      sphere.position.x += moveX;
+      sphere.position.z += moveZ;
+    }
+    if (rightJoystick.pressed) {
+      let moveY =
+        rightJoystick.deltaPosition.y *
+        (scene.getEngine().getDeltaTime() / 1000) *
+        MOVE_SPEED;
+      sphere.position.y += moveY;
+    }
   }
 
   return (
     <div className="Container">
       <Engine antialias={true} adaptToDeviceRatio={true} canvasId="game-canvas">
-        <Scene
-          onSceneMount={onSceneMount}
-          collisionsEnabled={true}
-          state={state}
-        >
+        <Scene onSceneMount={onSceneMount} collisionsEnabled={true}>
           <hemisphericLight
             name="hemi-light"
             intensity={0.9}
