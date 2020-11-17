@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Scene, Skybox } from "react-babylonjs";
 import {
   Vector3,
@@ -12,35 +12,18 @@ import { AdvancedDynamicTexture, Button } from "@babylonjs/gui";
 import { randomBetween } from "../utils.js";
 import "./Game.css";
 
-let globalIndex = 0; // due to closure and how observables are assigned.
-const SkyboxScenes = [
-  {
-    name: "sunny day",
-    texture: `${process.env.PUBLIC_URL}/textures/space`
-  },
-  {
-    name: "specular HDR",
-    texture: `${process.env.PUBLIC_URL}/textures/SpecularHDR.dds`
-  }
-];
-
 const STATE = {
   START: 0,
   GAME: 1,
   FAIL: 2
 };
 
-// let state = STATE.START;
-
 function Game() {
-  globalIndex = 0;
-
   const MOVE_SPEED = 5;
   const UFO_COUNT = 3;
   const UFO_DISTANCE = 20;
   const OUT_OF_SCENE = -10;
 
-  const camera = useRef(null);
   const [state, setState] = useState(STATE.GAME);
 
   let sphere;
@@ -221,9 +204,8 @@ function Game() {
           intensity={0.9}
           direction={Vector3.Up()}
         />
-        <Skybox rootUrl={SkyboxScenes[0].texture} />
+        <Skybox rootUrl={`${process.env.PUBLIC_URL}/textures/space`} />
         <freeCamera
-          ref={camera}
           name="camera1"
           position={new Vector3(0, 5, -10)}
           setTarget={[Vector3.Zero()]}
